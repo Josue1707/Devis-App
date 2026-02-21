@@ -1,0 +1,656 @@
+<!DOCTYPE html>  <html lang="fr">  
+<head>  
+  <meta charset="UTF-8" />  
+  <meta name="viewport" content="width=device-width, initial-scale=1" />  
+  <title>Dashboard - DevisApp</title>  
+<style>  
+  body {  
+    font-family: Arial, sans-serif;  
+    max-width: 900px;  
+    margin: 0;  
+    padding: 10px;  
+    background-color: #f3f4f6;  
+  }  
+  h1, h2 {  
+    text-align: center;  
+    color: #28a745;  
+  }  
+  input, textarea, button {  
+    width: 100%;  
+    padding: 10px;  
+    margin: 6px 0;  
+    box-sizing: border-box;  
+    border-radius: 5px;  
+    border: 1px solid #ccc;  
+  }  
+  table {  
+    width: 100%;  
+    border-collapse: collapse;  
+    margin-top: 30px;  
+  }  
+  th, td {  
+    border: 1px solid #ddd;  
+    padding: 8px;  
+    text-align: left;  
+  }  
+  th {  
+    background-color: #e0ffe5;  
+  }  
+  .btn {  
+    padding: 8px;  
+    border: none;  
+    border-radius: 4px;  
+    cursor: pointer;  
+    margin-top: 5px;  
+    width: 100%;  
+  }  
+  .btn-download { background: #007bff; color: white; }  
+  .btn-edit { background: #ffc107; color: black; }  
+  .btn-delete { background: #dc3545; color: white; }  
+  .btn-whatsapp { background: #25d366; color: white; }  /* 🔥 Responsive */
+@media screen and (max-width: 768px) {
+table, thead, tbody, th, td, tr {
+display: block;
+}
+thead {
+display: none;
+}
+tr {
+margin-bottom: 20px;
+background: white;
+border-radius: 8px;
+box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+padding: 10px;
+}
+td {
+display: flex;
+justify-content: space-between;
+padding: 8px 10px;
+border: none;
+border-bottom: 1px solid #eee;
+}
+td::before {
+content: attr(data-label);
+font-weight: bold;
+color: #28a745;
+}
+}
+
+.section-centree {
+text-align: center;
+margin-top: 30px;
+}
+
+.section-centree h3 {
+font-weight: normal;
+font-size: 1.2em;
+}
+
+.section-centree .icon {
+margin-right: 8px;
+font-size: 1.3em;
+}
+
+.section-centree a {
+color: #007bff;
+text-decoration: none;
+font-weight: bold;
+}
+
+.section-centree a:hover {
+text-decoration: underline;
+}
+
+.app-header {
+width: 96%;
+background: linear-gradient(135deg, #374, #4b55);
+padding: 10px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+color: white;
+}
+
+.logo-container {
+width: 40px;
+display: flex;
+justify-content: center;
+}
+
+.logo {
+max-width: 70px;
+height: auto;
+}
+
+.brand {
+text-align: center;
+flex: 1;
+}
+
+.brand h1 {
+margin: 0;
+font-size: 24px;
+letter-spacing: 1px;
+font-weight: 800;
+color: white;
+}
+
+.brand span {
+font-size: 13px;
+opacity: 0.9;
+}
+
+.container {
+max-width: 900px;
+margin: 20px auto;
+padding: 10px;
+}
+
+label {
+  font-weight: bold;
+  font-size: 14px;
+  margin-top: 8px;
+  display: block;
+}
+
+.prestations-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  font-weight: bold;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  color: #374151;
+}
+
+#prestationsContainer div {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 5px;
+}
+</style>
+
+<!-- Firebase App (core) -->
+<script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyC1CW9QAQXFRPbpxOLlWT0Ne1Pc3612-_4",
+  authDomain: "devis-9307d.firebaseapp.com",
+  projectId: "devis-9307d",
+  storageBucket: "devis-9307d.appspot.com",
+  messagingSenderId: "174927930223",
+  appId: "1:174927930223:web:7e8e7003deac7e3edb3e9a",
+  measurementId: "G-YZ3KCQP82P"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+</script>
+</head>  
+<body>  <header class="app-header">  
+  <div class="logo-container">  
+    <img src="armoiries.png" alt="Logo" class="logo">  
+  </div>    <div class="brand">  
+    <h1>REPUBLIQUE DU BÉNIN</h1>  
+    <span>Générateur de devis professionnel</span>  
+  </div>    <div class="logo-container">  
+    <img src="armoiries.png" alt="Logo" class="logo">  
+  </div>  
+</header>  
+<div>  
+<form id="devisForm">
+
+<h2>Créer un nouveau devis</h2>
+
+<label>Date de réalisation</label>
+<input type="date" id="date" required />
+
+<label>Nom de l’émetteur</label>
+<input type="text" id="author" required />
+
+<label>Téléphone de l’émetteur</label>
+<input type="number" id="authorPhone" required />
+
+<label>Nom du client</label>
+<input type="text" id="clientName" required />
+
+<label>Nom du projet</label>
+<input type="text" id="projectName" required />
+
+<label>Date d’échéance</label>
+<input type="date" id="dueDate" required/>
+
+<label>Description du projet</label>
+<textarea id="description" required></textarea>
+
+<label>Montant global (FCFA)</label>
+<input type="number" id="amount" required min="0" step="0.01" />
+
+<label>Notes supplémentaires</label>
+<textarea id="notes"></textarea>
+
+<h3>Détails des prestations</h3>
+
+<div class="prestations-header">
+  <span>Désignation</span>
+  <span>Quantité</span>
+  <span>Prix Unitaire</span>
+</div>
+
+<div id="prestationsContainer"></div>
+
+<button type="button" onclick="ajouterPrestation()">+ Ajouter une ligne</button>
+
+<h3>Zone de signature</h3>
+<p style="font-size: 13px; color:#555;">
+Veuillez signer dans la zone ci-dessous
+</p>
+
+<canvas id="signaturePad" width="400" height="150"
+style="border:1px solid #000; border-radius:8px;"></canvas>
+
+<br>
+<button type="button" onclick="clearSignature()">Effacer la signature</button>
+
+<button type="submit" style="background:#28a745; color:white;">
+Enregistrer le devis
+</button>
+
+</form>
+</div>  <table id="devisTable">  
+  <thead>  
+    <tr>  
+      <th>Client</th>  
+      <th>Projet</th>  
+      <th>Montant</th>  
+      <th>Échéance</th>  
+      <th>Émetteur</th>  
+      <th>Téléphone</th>  
+      <th>Date</th>  
+      <th>Actions</th>  
+    </tr>  
+  </thead>  
+  <tbody></tbody>  
+</table> 
+<button id="adminBtn" style="display:none;">Admin</button>
+<button id="mesDevisBtn" style="background:#007bff; color:white; margin-top:10px;">Mes devis</button>
+
+<!-- jsPDF & autoTable -->  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>  <script>  
+let devisList = [];  
+  
+const devisForm = document.getElementById("devisForm");  
+const devisTableBody = document.querySelector("#devisTable tbody");  
+  
+devisForm.addEventListener("submit", (e) => {  
+  e.preventDefault();  
+  
+  const prestations = [];  
+  const prestationsContainer = document.getElementById("prestationsContainer");  
+  prestationsContainer.querySelectorAll("div").forEach((div, i) => {  
+    const designation = div.querySelector(`[name="designation_${i}"]`).value;  
+    const quantite = div.querySelector(`[name="quantite_${i}"]`).value;  
+    const prixUnitaire = parseFloat(div.querySelector(`[name="pu_${i}"]`).value);  
+    prestations.push({ designation, quantite, prixUnitaire });  
+  });  
+  
+  const data = {  
+    clientName: devisForm.clientName.value,  
+    projectName: devisForm.projectName.value,  
+    description: devisForm.description.value,  
+    amount: parseFloat(devisForm.amount.value),  
+    dueDate: devisForm.dueDate.value,  
+    notes: devisForm.notes.value,  
+    author: devisForm.author.value || "",  
+    authorPhone: devisForm.authorPhone.value,  
+    date: devisForm.date.value,  
+    prestations,  
+    createdAt: new Date()  
+  };  
+  
+  devisList.push(data);  
+  ajouterDevisAuTableau(data);  
+  devisForm.reset();  
+});  
+  
+devisForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const prestations = [];
+  const prestationsContainer = document.getElementById("prestationsContainer");
+  prestationsContainer.querySelectorAll("div").forEach((div, i) => {
+    const designation = div.querySelector(`[name="designation_${i}"]`).value;
+    const quantite = div.querySelector(`[name="quantite_${i}"]`).value;
+    const prixUnitaire = parseFloat(div.querySelector(`[name="pu_${i}"]`).value);
+    prestations.push({ designation, quantite, prixUnitaire });
+  });
+
+  const data = {
+    clientName: devisForm.clientName.value,
+    projectName: devisForm.projectName.value,
+    description: devisForm.description.value,
+    amount: parseFloat(devisForm.amount.value),
+    dueDate: devisForm.dueDate.value,
+    notes: devisForm.notes.value,
+    author: devisForm.author.value || "",
+    authorPhone: devisForm.authorPhone.value,
+    date: devisForm.date.value,
+    prestations,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  try {
+    // Création automatique de la collection "devis"
+    await db.collection("devis").add(data);
+    alert("Devis enregistré sur Firestore !");
+    ajouterDevisAuTableau(data);
+    devisForm.reset();
+  } catch (err) {
+    alert("Erreur lors de la sauvegarde Firestore : " + err);
+  }
+});
+  
+function ajouterPrestation() {  
+  const container = document.getElementById("prestationsContainer");  
+  const index = container.children.length;  
+  const ligne = document.createElement("div");  
+  ligne.innerHTML = `  
+    <input type="text" placeholder="Désignation" name="designation_${index}" />  
+    <input type="text" placeholder="Quantité" name="quantite_${index}" />  
+    <input type="number" placeholder="Prix unitaire" name="pu_${index}" />  
+  `;  
+  container.appendChild(ligne);  
+}  
+  
+function ajouterDevisAuTableau(data) {  
+  const row = document.createElement("tr");  
+  row.innerHTML = `  
+<tr>  
+  <td data-label="Client">${data.clientName}</td>  
+  <td data-label="Projet">${data.projectName}</td>  
+<td data-label="Montant">${Number(data.amount).toLocaleString('fr-FR')} FCFA</td>
+  <td data-label="Échéance">${data.dueDate}</td>  
+  <td data-label="Émetteur">${data.author}</td>  
+  <td data-label="Téléphone">${data.authorPhone}</td>  
+  <td data-label="Date">${data.date}</td>  
+  <td data-label="">  
+    <button class="btn btn-download">Télécharger(PDF)</button>  
+      <button class="btn btn-whatsapp" onclick="envoyerWhatsApp('${data.clientName}', '${data.projectName}', '${data.amount}', '${data.dueDate}', '${data.author}', '${data.description}', '${data.notes}', '${data.authorPhone}', '${data.date}')">Envoyer(Whatsapp)</button>  
+  </td>  
+</tr>  
+  `;  
+  row.querySelector(".btn-download").addEventListener("click", () => {  
+  genererPDF(data, canvas); //
+});
+  
+  devisTableBody.appendChild(row);  
+}  
+  
+async function genererPDF(d, canvas) {
+  const loader = document.getElementById("loader");
+  loader.style.display = "block"; // montrer le loader
+
+  try {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
+
+    const pageWidth = pdf.internal.pageSize.getWidth();  
+    const pageHeight = pdf.internal.pageSize.getHeight();  
+
+// ========================
+// FILIGRANE DIAGONAL
+// ========================
+pdf.setTextColor(150,150,150);
+pdf.setFontSize(50);
+pdf.setFont("helvetica","bold"); // Times n'est pas toujours dispo ici
+pdf.saveGraphicsState();
+pdf.setGState(new pdf.GState({opacity: 0.08}));
+
+// Calcul de la position pour que le filigrane remonte de façon diagonale
+const filigraneX = 10; // un peu décalé du bord gauche
+const filigraneY = pageHeight - 20; // légèrement au-dessus du coin bas
+const angle = 45; // diagonale
+
+// Filigrane
+pdf.text("RÉPUBLIQUE DU BÉNIN", filigraneX, filigraneY, { align: "left", angle: angle });
+
+pdf.restoreGraphicsState();
+pdf.setTextColor(0,0,0);
+
+    // ------------------------------
+    // Bandeau gris en haut
+    pdf.setFillColor(55, 65, 81);  
+    pdf.rect(0, 0, pageWidth, 40, "F");  
+
+    // Logos
+    const logo = await new Promise((resolve, reject) => {  
+      const img = new Image();  
+      img.src = "armoiries.png";  
+      img.onload = () => resolve(img);  
+      img.onerror = () => reject("Erreur chargement logo");  
+    });  
+    pdf.addImage(logo, "PNG", 15, 7, 25, 25);  
+    pdf.addImage(logo, "PNG", pageWidth - 40, 7, 25, 25);  
+
+    // Nom central en Times New Roman
+    pdf.setTextColor(255, 255, 255);  
+    pdf.setFont("times","bold");  
+    pdf.setFontSize(18);  
+    pdf.text("REPUBLIQUE DU BENIN", pageWidth / 2, 20, { align: "center" });  
+    pdf.setFontSize(10);  
+    pdf.text("Document professionnel", pageWidth / 2, 28, { align: "center" });  
+    pdf.setTextColor(0,0,0);  
+
+    let y = 55;  
+    pdf.setFontSize(10);
+    pdf.setFont("helvetica","normal");
+    pdf.text("N° Devis : DV-" + d.createdAt.getTime(), pageWidth - 60, 50);
+
+    // Infos principales
+    pdf.setFontSize(12);
+    pdf.setFont("helvetica", "bold"); pdf.text("Client :", 20, y);
+    pdf.setFont("helvetica", "normal"); pdf.text(d.clientName, 50, y); y += 8;
+    pdf.setFont("helvetica", "bold"); pdf.text("Projet :", 20, y);
+    pdf.setFont("helvetica", "normal"); pdf.text(d.projectName, 50, y); y += 8;
+    pdf.setFont("helvetica", "bold"); pdf.text("Montant :", 20, y);
+    pdf.setFont("helvetica", "normal"); pdf.text(d.amount.toLocaleString('fr-FR') + " FCFA", 50, y); y += 12;
+
+    // Tableau prestations
+    if (d.prestations.length > 0) {
+      let total = 0;
+      const tableData = d.prestations.map(p => {
+        const quantiteTexte = p.quantite || "";
+        const nombreQuantite = parseFloat(quantiteTexte) || 0;
+        const prixUnitaire = parseFloat(p.prixUnitaire) || 0;
+        const montant = nombreQuantite * prixUnitaire;
+        total += montant;
+        return [
+          p.designation || "",
+          quantiteTexte,
+          prixUnitaire.toLocaleString('fr-FR') + " FCFA",
+          montant.toLocaleString('fr-FR') + " FCFA"
+        ];
+      });
+
+      pdf.autoTable({
+        startY: y,
+        head: [["Désignation","Qté","PU","Montant"]],
+        body: tableData
+      });
+
+      y = pdf.lastAutoTable.finalY + 10;
+      pdf.setFont("helvetica","bold");
+      pdf.text("Total : " + total.toLocaleString('fr-FR') + " FCFA", 20, y);
+    }
+
+    if (y > pageHeight - 60) pdf.addPage();
+
+    // FOOTER
+    const footerY = pageHeight - 50;
+    pdf.setFontSize(10);
+    pdf.setFont("helvetica","normal");
+    pdf.text("Fait le : " + d.date, 20, footerY + 25);
+
+    const cachet = await new Promise((resolve, reject) => {
+      const img = new Image();
+      img.src = "cachet.png";
+      img.onload = () => resolve(img);
+      img.onerror = () => reject("Erreur chargement cachet");
+    });
+    const cachetX = pageWidth - 70;
+    pdf.addImage(cachet, "PNG", cachetX, footerY - 20, 50, 50);
+
+    // Signature
+    const blocX = cachetX - 30;
+    const blocY = footerY + 5;
+    const signatureImage = canvas.toDataURL("image/png");
+    pdf.addImage(signatureImage, "PNG", blocX, blocY, 50, 18);
+
+// Rectangle double ligne
+pdf.setDrawColor(120, 0, 0);
+pdf.setLineWidth(0.6);
+pdf.rect(blocX, blocY + 22, 60, 12);
+pdf.rect(blocX + 1, blocY + 23, 58, 10);
+
+// Nom en rouge et Times New Roman
+pdf.setTextColor(120, 0, 0);
+pdf.setFont("times","bold");
+pdf.setFontSize(9);
+pdf.text(d.author.toUpperCase(), blocX + 30, blocY + 30, { align: "center" });
+
+// Réinitialiser la couleur pour le reste du PDF
+pdf.setTextColor(0,0,0);
+pdf.setLineWidth(1);
+
+    // Sauvegarde
+    pdf.save("devis_" + d.clientName + ".pdf");
+
+  } catch(err) {
+    alert("Erreur lors de la génération du PDF : " + err);
+  } finally {
+    loader.style.display = "none"; // cacher le loader
+  }
+}
+  
+function envoyerWhatsApp(client, projet, montant, date, auteur, description, notes, phone, dateReal) {  
+  const message = `📄 *DEVIS DU PROJET*\n\n🕓 Réalisé le : ${dateReal}\n✍️ Établi par : ${auteur}\n📞 Téléphone : ${phone}\n👤 Client : ${client}\n🏗️ Projet : ${projet}\n💰 Montant : ${Number(montant).toLocaleString('fr-FR')} FCFA\n📅 Échéance : ${date}\n\n📝 Description :\n${description}\n\n🗒️ Notes :\n${notes || "Aucune"}`;  
+  const url = `https://wa.me/?text=${encodeURIComponent(message)}`;  
+  window.open(url, "_blank");  
+}  
+  
+// Charger les devis depuis le localStorage  
+if (localStorage.getItem("devisList")) {  
+  devisList = JSON.parse(localStorage.getItem("devisList"));  
+  devisList.forEach(devis => ajouterDevisAuTableau(devis));  
+}  
+  
+function viderDevis() {  
+  if (confirm("Voulez-vous vraiment supprimer tous les devis ?")) {  
+    localStorage.removeItem("devisList");  
+    devisList = [];  
+    devisTableBody.innerHTML = "";  
+    alert("Tous les devis ont été supprimés.");  
+  }  
+}  
+
+const canvas = document.getElementById("signaturePad");
+const ctx = canvas.getContext("2d");
+
+let drawing = false;
+
+canvas.addEventListener("mousedown", startDraw);
+canvas.addEventListener("mouseup", stopDraw);
+canvas.addEventListener("mousemove", draw);
+
+canvas.addEventListener("touchstart", startDrawTouch);
+canvas.addEventListener("touchend", stopDraw);
+canvas.addEventListener("touchmove", drawTouch);
+
+function startDraw(e){
+    drawing = true;
+    drawDot(e.offsetX, e.offsetY);
+}
+
+function startDrawTouch(e){
+    e.preventDefault();
+    drawing = true;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    drawDot(touch.clientX - rect.left, touch.clientY - rect.top);
+}
+
+function stopDraw(){
+    drawing = false;
+    ctx.beginPath();
+}
+
+function draw(e){
+    if(!drawing) return;
+
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "#000";
+
+    ctx.lineTo(e.offsetX, e.offsetY);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+}
+
+function drawTouch(e){
+    e.preventDefault();
+    if(!drawing) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "#000";
+
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+}
+
+function drawDot(x, y){
+    ctx.beginPath();
+    ctx.arc(x, y, 1.5, 0, Math.PI * 2);
+    ctx.fillStyle = "#000";
+    ctx.fill();
+}
+
+document.getElementById("mesDevisBtn").addEventListener("click", async () => {
+  devisTableBody.innerHTML = ""; // vider le tableau avant
+  const snapshot = await db.collection("devis").orderBy("createdAt","desc").get();
+  snapshot.forEach(doc => ajouterDevisAuTableau(doc.data()));
+});
+</script>  
+</div>  
+
+<div id="loader" style="
+  display:none;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  animation: spin 1s linear infinite;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+"></div>
+
+<style>
+@keyframes spin {
+  0% { transform: rotate(0deg);}
+  100% { transform: rotate(360deg);}
+}
+</style>
+</body>  
+</html>
